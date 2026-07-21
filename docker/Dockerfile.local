@@ -1,12 +1,14 @@
 FROM golang:1.26-alpine AS builder
 WORKDIR /app
 COPY go.work* ./
-COPY backend/go.mod backend/go.sum ./backend/
-COPY shared/golog/go.mod shared/golog/go.sum ./shared/golog/
+COPY backend/go.* ./backend/
+COPY client/go.* ./client/
+COPY shared/golog/go.* ./shared/golog/
 RUN go mod download
 COPY backend/ ./backend/
+COPY client/ ./client/
 COPY shared/golog/ ./shared/golog/
-RUN go build -ldflags="-s -w" -o /marte ./backend
+RUN CGO_ENABLED=0 go build -ldflags="-s -w" -o /marte ./backend
 
 FROM alpine:3.21
 COPY --from=builder /marte /usr/bin/marte

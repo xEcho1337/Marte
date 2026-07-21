@@ -43,6 +43,18 @@ marte exploit test <file> <service>         Test on NOP team
 marte exploit debug <file> <service> <host> Debug exploit (useful for testing)
 ```
 
+## Installation
+
+Installation is only supported on macOS and Linux. If you are one Windows, use **WSL2**.
+
+One line to install:
+
+```bash
+curl -sSfL https://raw.githubusercontent.com/xEcho1337/Marte/main/scripts/install-client.sh | bash
+```
+
+The script will install the Marte's client inside the `~/.local/bin` directory.
+
 ## Build
 
 ```bash

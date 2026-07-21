@@ -62,7 +62,7 @@ The script will install the Marte's client inside the `~/.local/bin` directory.
 One liner:
 
 ```bash
-bash <(curl -sSfL https://raw.githubusercontent.com/xEcho1337/Marte/main/scripts/install-server.sh)
+curl -sSfL https://raw.githubusercontent.com/xEcho1337/Marte/main/scripts/install-server.sh | bash
 cd Marte
 ```
 

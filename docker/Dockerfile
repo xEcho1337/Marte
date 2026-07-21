@@ -11,5 +11,7 @@ FROM alpine:3.21
 RUN apk add --no-cache ca-certificates tzdata
 WORKDIR /app
 COPY --from=builder /marte .
+COPY frontend/ /frontend/
 EXPOSE 14100 14101
+VOLUME /app
 ENTRYPOINT ["./marte"]

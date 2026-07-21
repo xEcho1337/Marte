@@ -1,7 +1,9 @@
 #!/usr/bin/env bash
 set -euo pipefail
 
-REPO="https://github.com/xEcho1337/Marte.git"
+REPO_OWNER="xEcho1337"
+REPO_NAME="Marte"
+REPO="https://github.com/${REPO_OWNER}/${REPO_NAME}.git"
 
 if ! command -v docker &>/dev/null; then
     echo "Error: Docker is required. Install it from https://docs.docker.com/engine/install/"
@@ -22,14 +24,16 @@ cd Marte
 if [ ! -f data/config.yml ]; then
     echo "Creating default config..."
     mkdir -p data
-    docker run --rm ghcr.io/xecho1337/marte:latest cat config.yml > data/config.yml 2>/dev/null || {
-        curl -sSfL "https://raw.githubusercontent.com/xEcho1337/Marte/main/backend/config/default.yml" \
-            -o data/config.yml
-    }
+    curl -sSfL "https://raw.githubusercontent.com/${REPO_OWNER}/${REPO_NAME}/main/backend/config/default.yml" \
+        -o data/config.yml
     echo "Edit data/config.yml with your settings."
 fi
 
 echo ""
 echo "Setup complete!"
 echo "  cd $(pwd)"
-echo "  docker compose up -d"
+COMPOSE_CMD="docker compose"
+if ! docker compose version &>/dev/null; then
+    COMPOSE_CMD="docker-compose"
+fi
+echo "  ${COMPOSE_CMD} up -d"

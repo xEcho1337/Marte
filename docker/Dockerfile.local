@@ -1,0 +1,17 @@
+FROM golang:1.26-alpine AS builder
+WORKDIR /app
+COPY go.work* ./
+COPY backend/go.mod backend/go.sum ./backend/
+COPY shared/golog/go.mod shared/golog/go.sum ./shared/golog/
+RUN go mod download
+COPY backend/ ./backend/
+COPY shared/golog/ ./shared/golog/
+RUN go build -ldflags="-s -w" -o /marte ./backend
+
+FROM alpine:3.21
+COPY --from=builder /marte /usr/bin/marte
+COPY frontend/ /frontend/
+WORKDIR /app
+VOLUME /app
+EXPOSE 14100 14101
+ENTRYPOINT ["/usr/bin/marte"]

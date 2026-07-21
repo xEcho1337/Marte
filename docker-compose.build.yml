@@ -2,7 +2,7 @@ services:
   marte:
     build:
       context: .
-      dockerfile: docker/Dockerfile
+      dockerfile: docker/Dockerfile.local
     container_name: marte
     ports:
       - "14100:14100"

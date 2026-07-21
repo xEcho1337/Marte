@@ -33,12 +33,12 @@ TARGET_ASSET="marte-client-${OS_TARGET}-${ARCH_TARGET}"
 echo "Fetching latest release ..."
 LATEST=$(curl -sSf "https://api.github.com/repos/${REPO_OWNER}/${REPO_NAME}/releases/latest")
 
-DOWNLOAD_URL=$(echo "$LATEST" | grep -oE '"browser_download_url":"[^"]*'"${TARGET_ASSET}"'[^"]*"' | grep -oE 'https://[^"]+' || true)
+DOWNLOAD_URL=$(echo "$LATEST" | grep -oE '"browser_download_url": *"[^"]*'"${TARGET_ASSET}"'[^"]*"' | grep -oE 'https://[^"]+' || true)
 
 if [ -z "$DOWNLOAD_URL" ]; then
     echo "Error: asset '${TARGET_ASSET}' not found in latest release."
     echo "Available assets:"
-    echo "$LATEST" | sed -n 's/.*"name":"\([^"]*\)".*/\1/p' || true
+    echo "$LATEST" | grep -oE '"name": *"[^"]*"' | sed 's/"name": *"\(.*\)"/  \1/' || true
     exit 1
 fi
 

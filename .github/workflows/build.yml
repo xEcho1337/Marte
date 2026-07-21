@@ -57,9 +57,12 @@ jobs:
         run: |
           for dir in artifacts/*/; do
             name=$(basename "$dir")
-            mv "$dir/marte" "artifacts/${name}"
+            mv "$dir/marte" "artifacts/${name}.bin"
+            rmdir "$dir"
           done
-          rm -rf artifacts/*/
+          for f in artifacts/*.bin; do
+            mv "$f" "${f%.bin}"
+          done
           ls -la artifacts/
       - name: Set release name
         id: release_name

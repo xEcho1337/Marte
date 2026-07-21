@@ -53,11 +53,24 @@ jobs:
       - uses: actions/download-artifact@v4
         with:
           path: artifacts
+      - name: Rename binaries to unique names
+        run: |
+          for dir in artifacts/*/; do
+            name=$(basename "$dir")
+            mv "$dir/marte" "artifacts/${name}"
+          done
+          rm -rf artifacts/*/
+          ls -la artifacts/
+      - name: Set release name
+        id: release_name
+        run: |
+          sha="${{ github.sha }}"
+          echo "name=Build (${sha:0:8})" >> "$GITHUB_OUTPUT"
       - name: Create release
         uses: ncipollo/release-action@v1
         with:
           tag: continuous
-          name: Continuous Build (${{ github.sha }})
+          name: ${{ steps.release_name.outputs.name }}
           body: |
             Automatic release from commit ${{ github.sha }}.
 
@@ -69,7 +82,7 @@ jobs:
             | marte-client-darwin-arm64 | macOS arm64 client |
             | marte-backend-linux-amd64 | Linux amd64 backend |
             | marte-backend-linux-arm64 | Linux arm64 backend |
-          artifacts: "artifacts/*/*"
+          artifacts: "artifacts/*"
           artifactErrorsFailBuild: true
           allowUpdates: true
           removeArtifacts: true

@@ -168,7 +168,7 @@ body {
     margin: 0;
     flex: 0 0 auto;
     display: inline-block;
-    margin-right: 0.75rem !important;
+    margin-right: 0.1rem;
 }
 
 .sidebar-btn:hover,

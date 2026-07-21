@@ -42,3 +42,36 @@ jobs:
         with:
           name: marte-backend-linux-${{ matrix.arch }}
           path: backend/out/marte
+
+  release:
+    if: github.ref == 'refs/heads/main' && github.event_name == 'push'
+    needs: [client, backend]
+    runs-on: ubuntu-latest
+    permissions:
+      contents: write
+    steps:
+      - uses: actions/download-artifact@v4
+        with:
+          path: artifacts
+      - name: Create release
+        uses: ncipollo/release-action@v1
+        with:
+          tag: continuous
+          name: Continuous Build (${{ github.sha }})
+          body: |
+            Automatic release from commit ${{ github.sha }}.
+
+            | Artifact | Description |
+            |----------|-------------|
+            | marte-client-linux-amd64 | Linux amd64 client |
+            | marte-client-linux-arm64 | Linux arm64 client |
+            | marte-client-darwin-amd64 | macOS amd64 client |
+            | marte-client-darwin-arm64 | macOS arm64 client |
+            | marte-backend-linux-amd64 | Linux amd64 backend |
+            | marte-backend-linux-arm64 | Linux arm64 backend |
+          artifacts: "artifacts/*/*"
+          artifactErrorsFailBuild: true
+          allowUpdates: true
+          removeArtifacts: true
+          replacesArtifacts: true
+          makeLatest: true

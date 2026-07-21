@@ -6,5 +6,5 @@ services:
       - "14100:14100"
       - "14101:14101"
     volumes:
-      - ./workspace/config.yml:/app/config.yml:ro
+      - "${HOME}/.marte:/app"
     restart: unless-stopped

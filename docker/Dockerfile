@@ -1,5 +1,5 @@
 FROM alpine:3.21
-RUN apk add --no-cache ca-certificates tzdata
+COPY ca-certificates.crt /etc/ssl/certs/
 COPY marte /usr/bin/marte
 COPY frontend/ /frontend/
 WORKDIR /app

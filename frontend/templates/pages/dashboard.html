@@ -1,0 +1,137 @@
+{{template "layout" .}}
+
+{{define "content"}}
+<div class="container-fluid px-0 py-3">
+    <div class="mb-4">
+        <p class="text-primary text-uppercase fw-semibold small mb-2">Dashboard</p>
+        <h1 class="display-6 fw-semibold mb-2">Overview</h1>
+        <p class="lead text-secondary mb-0">
+            Current platform status.
+        </p>
+    </div>
+
+    <div class="row g-4 mb-4">
+        <div class="col-12 col-md-4">
+            <div class="card h-100 shadow-sm">
+                <div class="card-body p-4">
+                    <h2 class="h4 mb-3">Teams</h2>
+                    <p class="display-6 fw-bold text-primary mb-0" id="statTeams">-</p>
+                </div>
+            </div>
+        </div>
+        <div class="col-12 col-md-4">
+            <div class="card h-100 shadow-sm">
+                <div class="card-body p-4">
+                    <h2 class="h4 mb-3">Servizi</h2>
+                    <p class="display-6 fw-bold text-success mb-0" id="statServices">-</p>
+                </div>
+            </div>
+        </div>
+        <div class="col-12 col-md-4">
+            <div class="card h-100 shadow-sm">
+                <div class="card-body p-4">
+                    <h2 class="h4 mb-3">Flags sent</h2>
+                    <p class="display-6 fw-bold text-info mb-0" id="statFlags">-</p>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <div class="row g-4">
+        <div class="col-12 col-lg-6">
+            <div class="card shadow-sm">
+                <div class="card-body p-4">
+                    <h2 class="h4 mb-3">Servizi</h2>
+                    <div class="table-responsive">
+                        <table class="table align-middle mb-0">
+                            <thead>
+                            <tr>
+                                <th>Name</th>
+                                <th>Port</th>
+                            </tr>
+                            </thead>
+                            <tbody id="servicesTable">
+                            <tr><td colspan="2" class="text-secondary">Loading...</td></tr>
+                            </tbody>
+                        </table>
+                    </div>
+                </div>
+            </div>
+        </div>
+        <div class="col-12 col-lg-6">
+            <div class="card shadow-sm">
+                <div class="card-body p-4">
+                    <h2 class="h4 mb-3">Latest flags</h2>
+                    <div class="table-responsive">
+                        <table class="table align-middle mb-0">
+                            <thead>
+                            <tr>
+                                <th>Flag</th>
+                                <th>Team</th>
+                                <th>Status</th>
+                            </tr>
+                            </thead>
+                            <tbody id="recentFlagsTable">
+                            <tr><td colspan="3" class="text-secondary">Loading...</td></tr>
+                            </tbody>
+                        </table>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
+<script>
+    function statusBadge(status) {
+        switch (status) {
+            case 'accepted': return 'bg-success';
+            case 'pending':  return 'bg-warning text-dark';
+            default:         return 'bg-danger';
+        }
+    }
+
+    (async () => {
+        const [farm, flags] = await Promise.all([
+            App.getFarm(),
+            App.getFlags(10, 0)
+        ]);
+
+        if (farm) {
+            document.getElementById('statTeams').textContent = farm.team_count || 0;
+            document.getElementById('statServices').textContent = farm.services ? farm.services.length : 0;
+
+            const tbody = document.getElementById('servicesTable');
+            if (farm.services && farm.services.length) {
+                tbody.innerHTML = farm.services.map(s =>
+                    `<tr><td>${s.name}</td><td><code>${s.port}</code></td></tr>`
+                ).join('');
+            } else {
+                tbody.innerHTML = '<tr><td colspan="2" class="text-secondary">No services</td></tr>';
+            }
+        }
+
+        if (flags) {
+            if (flags.summary) {
+                document.getElementById('statFlags').textContent = flags.summary.total;
+            } else {
+                document.getElementById('statFlags').textContent = flags.total || (flags.flags ? flags.flags.length : 0);
+            }
+
+            const tbody = document.getElementById('recentFlagsTable');
+            if (flags.flags && flags.flags.length) {
+                tbody.innerHTML = flags.flags.map(f => {
+                    const badge = statusBadge(f.status);
+                    return `<tr>
+                        <td><code>${f.value}</code></td>
+                        <td>${f.team_id}</td>
+                        <td><span class="badge ${badge}">${f.status}</span></td>
+                    </tr>`;
+                }).join('');
+            } else {
+                tbody.innerHTML = '<tr><td colspan="3" class="text-secondary">No flags</td></tr>';
+            }
+        }
+    })();
+</script>
+{{end}}

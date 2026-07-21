@@ -1,0 +1,51 @@
+# Network port where the API is hosted for the dashboard (HTTP)
+api-port: 14100
+
+# Network port where the flags are submitted (TCP)
+submitter-port: 14101
+
+# The password to access the farm
+password: "changeme"
+
+# The team token which identifies your team
+team-token: "changeme"
+
+# The team id of your team
+your-team-id: 1
+
+# The nop team id
+nop-team-id: 0
+
+# Round time in seconds for exploit scheduling
+round-time: 120
+
+# Flag IDs format: cyber_challenge, forcad, enowars
+flag-id-format: cyber_challenge
+
+# Supported submitters: cyber_challenge, forcad, enowars
+submitter: cyber_challenge
+
+# Total number of teams in the competition (for IP-based iteration)
+team-count: 10
+
+# Regex to extract flags from exploit stdout
+flag-regex: "[A-Z0-9]{31}="
+
+# The ip format of the machines
+team-ip-format: 10.60.{}.1
+
+# Where to get the flag ids
+url-flag-ids: "http://10.10.0.1:8081/flagIds"
+
+# Where to submit the flags
+url-flag-submit: "http://10.10.0.1:8080/flags"
+
+# How many flags should be sent per request
+flag-batch: 100
+
+# How many seconds should pass between two consecutive requests to the flags url
+flag-submit-rate: 10
+
+# A list of services with their ports
+services:
+  example: 1337

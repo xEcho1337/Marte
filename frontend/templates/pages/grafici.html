@@ -1,0 +1,299 @@
+{{template "layout" .}}
+
+{{define "content"}}
+<div class="container-fluid px-0 py-3">
+    <div class="d-flex justify-content-between align-items-start mb-4">
+        <div>
+            <p class="text-primary text-uppercase fw-semibold small mb-2">Charts</p>
+            <h1 class="display-6 fw-semibold mb-2">Charts</h1>
+            <p class="lead text-secondary mb-0">
+                Flag trends and statistics.
+            </p>
+        </div>
+        <div>
+            <button class="btn btn-outline-primary" onclick="loadCharts()">
+                <i class="bi bi-arrow-clockwise"></i> Refresh
+            </button>
+        </div>
+    </div>
+
+    <div class="row g-4 mb-4">
+        <div class="col-12 col-md-3">
+            <div class="card h-100 shadow-sm">
+                <div class="card-body p-4">
+                    <h2 class="h5 mb-2">Total</h2>
+                    <p class="display-6 fw-bold text-primary mb-0" id="statTotal">-</p>
+                </div>
+            </div>
+        </div>
+        <div class="col-12 col-md-3">
+            <div class="card h-100 shadow-sm">
+                <div class="card-body p-4">
+                    <h2 class="h5 mb-2">Accepted</h2>
+                    <p class="display-6 fw-bold text-success mb-0" id="statAccepted">-</p>
+                </div>
+            </div>
+        </div>
+        <div class="col-12 col-md-3">
+            <div class="card h-100 shadow-sm">
+                <div class="card-body p-4">
+                    <h2 class="h5 mb-2">Rejected</h2>
+                    <p class="display-6 fw-bold text-danger mb-0" id="statRejected">-</p>
+                </div>
+            </div>
+        </div>
+        <div class="col-12 col-md-3">
+            <div class="card h-100 shadow-sm">
+                <div class="card-body p-4">
+                    <h2 class="h5 mb-2">Pending</h2>
+                    <p class="display-6 fw-bold text-warning mb-0" id="statPending">-</p>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <div class="row g-4 mb-4">
+        <div class="col-12">
+            <div class="card shadow-sm">
+                <div class="card-header bg-transparent border-bottom-0 pt-3 pb-0">
+                    <h2 class="h5 mb-0">Accepted/Rejected flags over time</h2>
+                </div>
+                <div class="card-body p-4">
+                    <canvas id="timelineChart" height="320"></canvas>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <div class="row g-4">
+        <div class="col-12 col-lg-7">
+            <div class="card shadow-sm h-100">
+                <div class="card-header bg-transparent border-bottom-0 pt-3 pb-0">
+                    <h2 class="h5 mb-0">Top Attacker</h2>
+                </div>
+                <div class="card-body p-4">
+                    <canvas id="topAttackersChart" height="360"></canvas>
+                </div>
+            </div>
+        </div>
+        <div class="col-12 col-lg-5">
+            <div class="card shadow-sm h-100">
+                <div class="card-header bg-transparent border-bottom-0 pt-3 pb-0">
+                    <h2 class="h5 mb-0">Flag distribution</h2>
+                </div>
+                <div class="card-body p-4 d-flex align-items-center justify-content-center">
+                    <canvas id="distributionChart" height="300"></canvas>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
+<script>
+let charts = {};
+const accent = getComputedStyle(document.documentElement).getPropertyValue('--accent').trim();
+
+function formatTime(ts) {
+    const d = new Date(ts);
+    return d.toLocaleTimeString('en-GB', { hour: '2-digit', minute: '2-digit' });
+}
+
+function formatDate(ts) {
+    const d = new Date(ts);
+    return d.toLocaleDateString('en-GB', { day: '2-digit', month: '2-digit' }) + ' ' +
+           d.toLocaleTimeString('en-GB', { hour: '2-digit', minute: '2-digit' });
+}
+
+function destroyCharts() {
+    for (const key of Object.keys(charts)) {
+        if (charts[key]) {
+            charts[key].destroy();
+            delete charts[key];
+        }
+    }
+}
+
+async function loadCharts() {
+    const data = await App.apiJSON('/api/stats');
+    if (!data) return;
+
+    if (data.summary) {
+        document.getElementById('statTotal').textContent = data.summary.total;
+        document.getElementById('statAccepted').textContent = data.summary.accepted;
+        document.getElementById('statRejected').textContent = data.summary.rejected;
+        document.getElementById('statPending').textContent = data.summary.pending;
+    }
+
+    destroyCharts();
+
+    renderTimelineChart(data.timeline || []);
+    renderTopAttackersChart(data.top_attackers || []);
+    renderDistributionChart(data.summary);
+}
+
+function renderTimelineChart(points) {
+    const ctx = document.getElementById('timelineChart').getContext('2d');
+
+    const labels = points.map(p => formatTime(p.timestamp));
+    const acceptedData = points.map(p => p.accepted);
+    const rejectedData = points.map(p => p.rejected);
+
+    const timeUnit = points.length > 30 ? 'hour' : 'minute';
+
+    charts.timeline = new Chart(ctx, {
+        type: 'line',
+        data: {
+            labels: labels,
+            datasets: [
+                {
+                    label: 'Accepted',
+                    data: acceptedData,
+                    borderColor: '#198754',
+                    backgroundColor: 'rgba(25, 135, 84, 0.1)',
+                    borderWidth: 2,
+                    fill: true,
+                    tension: 0.3,
+                    pointRadius: 2,
+                    pointHoverRadius: 5
+                },
+                {
+                    label: 'Rejected',
+                    data: rejectedData,
+                    borderColor: '#dc3545',
+                    backgroundColor: 'rgba(220, 53, 69, 0.1)',
+                    borderWidth: 2,
+                    fill: true,
+                    tension: 0.3,
+                    pointRadius: 2,
+                    pointHoverRadius: 5
+                }
+            ]
+        },
+        options: {
+            responsive: true,
+            maintainAspectRatio: false,
+            interaction: {
+                mode: 'index',
+                intersect: false
+            },
+            plugins: {
+                legend: {
+                    position: 'top',
+                    labels: { color: '#e2e8f0' }
+                },
+                tooltip: {
+                    callbacks: {
+                        title: function(items) {
+                            const idx = items[0].dataIndex;
+                            return formatDate(points[idx].timestamp);
+                        }
+                    }
+                }
+            },
+            scales: {
+                x: {
+                    grid: { display: false },
+                    ticks: { color: '#8b949e', maxTicksLimit: 20 }
+                },
+                y: {
+                    beginAtZero: true,
+                    ticks: { color: '#8b949e', precision: 0 },
+                    grid: { color: 'rgba(255,255,255,0.06)' }
+                }
+            }
+        }
+    });
+}
+
+function renderTopAttackersChart(attackers) {
+    const ctx = document.getElementById('topAttackersChart').getContext('2d');
+
+    const top10 = attackers.slice(0, 10);
+    const labels = top10.map(a => a.username);
+    const accepted = top10.map(a => a.accepted);
+    const total = top10.map(a => a.total);
+
+    charts.topAttackers = new Chart(ctx, {
+        type: 'bar',
+        data: {
+            labels: labels,
+            datasets: [
+                {
+                    label: 'Accepted',
+                    data: accepted,
+                    backgroundColor: 'rgba(25, 135, 84, 0.8)',
+                    borderColor: '#198754',
+                    borderWidth: 1,
+                    borderRadius: 4
+                },
+                {
+                    label: 'Total',
+                    data: total,
+                    backgroundColor: 'rgba(13, 110, 253, 0.6)',
+                    borderColor: accent,
+                    borderWidth: 1,
+                    borderRadius: 4
+                }
+            ]
+        },
+        options: {
+            responsive: true,
+            maintainAspectRatio: false,
+            indexAxis: 'y',
+            plugins: {
+                legend: {
+                    position: 'top',
+                    labels: { color: '#e2e8f0' }
+                }
+            },
+            scales: {
+                x: {
+                    beginAtZero: true,
+                    ticks: { color: '#8b949e', precision: 0 },
+                    grid: { color: 'rgba(255,255,255,0.06)' }
+                },
+                y: {
+                    grid: { display: false },
+                    ticks: { color: '#e2e8f0' }
+                }
+            }
+        }
+    });
+}
+
+function renderDistributionChart(summary) {
+    const ctx = document.getElementById('distributionChart').getContext('2d');
+
+    const accepted = summary ? summary.accepted : 0;
+    const rejected = summary ? summary.rejected : 0;
+    const pending = summary ? summary.pending : 0;
+
+    charts.distribution = new Chart(ctx, {
+        type: 'doughnut',
+        data: {
+            labels: ['Accepted', 'Rejected', 'Pending'],
+            datasets: [{
+                data: [accepted, rejected, pending],
+                backgroundColor: ['#198754', '#dc3545', '#ffc107'],
+                borderColor: ['#157347', '#bb2d3b', '#ffca2c'],
+                borderWidth: 1,
+                hoverOffset: 4
+            }]
+        },
+        options: {
+            responsive: true,
+            maintainAspectRatio: true,
+            cutout: '65%',
+            plugins: {
+                legend: {
+                    position: 'bottom',
+                    labels: { color: '#e2e8f0' }
+                }
+            }
+        }
+    });
+}
+
+loadCharts();
+</script>
+{{end}}

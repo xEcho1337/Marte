@@ -1,0 +1,49 @@
+{{template "layout" .}}
+
+{{define "content"}}
+<div class="container-fluid px-0 py-3">
+    <div class="mb-4">
+        <p class="text-primary text-uppercase fw-semibold small mb-2">Client</p>
+        <h1 class="display-6 fw-semibold mb-2">Client documentation</h1>
+        <p class="lead text-secondary mb-0">
+            Quick guide to install, configure, and use the Marte client.
+        </p>
+    </div>
+
+    <div class="row g-4">
+        <div class="col-12 col-xl-4">
+            <div class="card h-100 shadow-sm">
+                <div class="card-body p-4">
+                    <h2 class="h4 mb-3">1. Installation</h2>
+                    <p class="text-secondary">
+                        Install the client and verify the main command is available in the terminal.
+                    </p>
+                    <pre class="bg-body-tertiary border rounded p-3 mb-0"><code>marte --help</code></pre>
+                </div>
+            </div>
+        </div>
+        <div class="col-12 col-xl-4">
+            <div class="card h-100 shadow-sm">
+                <div class="card-body p-4">
+                    <h2 class="h4 mb-3">2. Create an environment</h2>
+                    <p class="text-secondary">
+                        Each environment contains the backend configuration and project exploits.
+                    </p>
+                    <pre class="bg-body-tertiary border rounded p-3 mb-0"><code>marte init</code></pre>
+                </div>
+            </div>
+        </div>
+        <div class="col-12 col-xl-4">
+            <div class="card shadow-sm">
+                <div class="card-body p-4">
+                    <h2 class="h4 mb-3">3. Configure the backend</h2>
+                    <p class="text-secondary">Set endpoint and credentials for the active environment.</p>
+                    <pre class="bg-body-tertiary border rounded p-3 mb-0"><code>marte host &lt;ip&gt; &lt;port&gt;
+marte login &lt;username&gt; &lt;password&gt;
+marte pull</code></pre>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+{{end}}

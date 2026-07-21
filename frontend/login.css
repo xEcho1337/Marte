@@ -1,0 +1,15 @@
+* {
+    font-family: Inter Variable, Helvetica, sans-serif;
+}
+
+.background {
+    position: fixed;
+    inset: 0;
+    background: url('/static/background.png') no-repeat center center;
+    background-size: cover;
+}
+
+.login-card {
+    width: 22rem;
+    background: rgba(30, 33, 40, 1.0) !important;
+}

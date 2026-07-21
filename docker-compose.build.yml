@@ -1,0 +1,12 @@
+services:
+  marte:
+    build:
+      context: .
+      dockerfile: docker/Dockerfile
+    container_name: marte
+    ports:
+      - "14100:14100"
+      - "14101:14101"
+    volumes:
+      - ./workspace/config.yml:/app/config.yml:ro
+    restart: unless-stopped

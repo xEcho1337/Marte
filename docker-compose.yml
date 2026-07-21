@@ -1,0 +1,10 @@
+services:
+  marte:
+    image: ghcr.io/xecho1337/marte:latest
+    container_name: marte
+    ports:
+      - "14100:14100"
+      - "14101:14101"
+    volumes:
+      - ./workspace/config.yml:/app/config.yml:ro
+    restart: unless-stopped

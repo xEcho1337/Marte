@@ -1,0 +1,43 @@
+name: Build
+
+on:
+  push:
+    tags:
+      - "v*"
+  workflow_dispatch:
+
+jobs:
+  client:
+    strategy:
+      matrix:
+        os: [ubuntu-latest, macos-latest]
+        arch: [amd64, arm64]
+    runs-on: ${{ matrix.os }}
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-go@v5
+        with:
+          go-version: "1.26"
+      - run: |
+          mkdir -p client/out
+          GOOS=${{ matrix.os == 'ubuntu-latest' && 'linux' || 'darwin' }} GOARCH=${{ matrix.arch }} \
+            go build -ldflags="-s -w" -o client/out/marte ./client
+      - uses: actions/upload-artifact@v4
+        with:
+          name: marte-client-${{ matrix.os == 'ubuntu-latest' && 'linux' || 'darwin' }}-${{ matrix.arch }}
+          path: client/out/marte
+
+  backend:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-go@v5
+        with:
+          go-version: "1.26"
+      - run: |
+          mkdir -p backend/out
+          GOOS=linux GOARCH=amd64 go build -ldflags="-s -w" -o backend/out/marte ./backend
+      - uses: actions/upload-artifact@v4
+        with:
+          name: marte-backend-linux-amd64
+          path: backend/out/marte

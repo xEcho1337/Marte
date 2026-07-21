@@ -1,0 +1,76 @@
+<!DOCTYPE html>
+<html lang="it" data-bs-theme="dark">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Login - Marte</title>
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.8/dist/css/bootstrap.min.css" rel="stylesheet">
+    <link rel="stylesheet" href="/static/login.css">
+    <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.8/dist/js/bootstrap.bundle.min.js"></script>
+    <script src="/static/app.js"></script>
+</head>
+<body class="d-flex justify-content-center align-items-center vh-100">
+<div class="background"></div>
+<div class="card rounded-4 shadow p-4 login-card">
+    <div class="text-center mb-3">
+        <img src="/static/logo.png" alt="Marte Logo" class="mb-1" style="width: 100px;"/>
+        <h1 class="fw-bold">Marte</h1>
+    </div>
+    <div id="loginError" class="alert alert-danger d-none" role="alert"></div>
+    <div class="mb-3">
+        <label for="usernameInput" class="form-label">Username</label>
+        <input type="text" class="form-control" id="usernameInput" placeholder="" autofocus>
+    </div>
+    <div class="mb-3">
+        <label for="passwordInput" class="form-label">Password</label>
+        <input type="password" class="form-control" id="passwordInput" placeholder="">
+    </div>
+    <div class="mt-1">
+        <button id="signIn" type="submit" class="btn btn-primary w-100 py-1" disabled>
+            Sign in
+        </button>
+    </div>
+</div>
+<script>
+    if (App.isLoggedIn()) {
+        window.location.href = '/dashboard';
+    }
+
+    const username = document.getElementById('usernameInput');
+    const password = document.getElementById('passwordInput');
+    const signIn = document.getElementById('signIn');
+    const error = document.getElementById('loginError');
+
+    function toggleBtn() {
+        signIn.disabled = !(username.value.length > 0 && password.value.length > 0);
+    }
+    username.addEventListener('input', toggleBtn);
+    password.addEventListener('input', toggleBtn);
+
+    password.addEventListener('keydown', (e) => {
+        if (e.key === 'Enter' && !signIn.disabled) signIn.click();
+    });
+
+    signIn.addEventListener('click', async () => {
+        error.classList.add('d-none');
+        signIn.disabled = true;
+        signIn.textContent = 'Signing in...';
+
+        try {
+            const result = await App.login(username.value, password.value);
+            if (result.ok) {
+                window.location.href = '/dashboard';
+            } else {
+                error.textContent = result.error || 'Wrong credentials';
+                error.classList.remove('d-none');
+            }
+        } catch (e) {
+            error.textContent = 'Cannot connect to server';
+            error.classList.remove('d-none');
+        }
+        signIn.disabled = false;
+        signIn.textContent = 'Sign in';
+    });
+</script>
+</body>
+</html>

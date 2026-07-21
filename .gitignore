@@ -1,0 +1,6 @@
+.idea/
+workspace/
+.DS_Store/
+client/out
+backend/out
+.marte/

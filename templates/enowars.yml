@@ -1,0 +1,51 @@
+# Network port where the API is hosted for the dashboard (HTTP)
+api-port: 14100
+
+# Network port where the flags are submitted (TCP)
+submitter-port: 14101
+
+# The password to access the farm
+password: "changeme"
+
+# The team token which identifies your team
+team-token: "changeme"
+
+# The team id of your team
+your-team-id: 1
+
+# The nop team id
+nop-team-id: 0
+
+# Round time in seconds for exploit scheduling (ENOWARS rounds are 60s)
+round-time: 60
+
+# Flag IDs format: cyber_challenge, forcad, enowars
+flag-id-format: enowars
+
+# Supported submitters: cyber_challenge, forcad, enowars
+submitter: enowars
+
+# Total number of teams in the competition (for IP-based iteration)
+team-count: 10
+
+# Regex to extract flags from exploit stdout (ENO[A-Za-z0-9+\/=]{48})
+flag-regex: "ENO[A-Za-z0-9+\\/=]{48}"
+
+# The ip format of the machines
+team-ip-format: 10.1.{}.1
+
+# Where to get the flag ids
+url-flag-ids: "https://10.enowars.com/scoreboard/attack.json"
+
+# Where to submit the flags (TCP, no http://)
+url-flag-submit: "10.0.13.37:1337"
+
+# How many flags should be sent per request
+flag-batch: 100
+
+# How many seconds should pass between two consecutive requests to the flags url
+flag-submit-rate: 3
+
+# A list of services with their ports
+services:
+  example: 1337

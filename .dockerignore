@@ -1,0 +1,6 @@
+workspace/
+frontend/
+templates/
+.git/
+docker/
+docker-compose*.yml

@@ -1,0 +1,98 @@
+{{define "layout"}}
+<!DOCTYPE html>
+<html lang="it" data-bs-theme="dark">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>{{.Title}} - Marte</title>
+    <link href="https://fonts.googleapis.com/css2?family=JetBrains+Mono:wght@400;700&display=swap" rel="stylesheet">
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.8/dist/css/bootstrap.min.css" rel="stylesheet">
+    <link rel="stylesheet" href="/static/style.css">
+    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.11.3/font/bootstrap-icons.min.css">
+    <script src="https://cdn.jsdelivr.net/npm/chart.js@4.4.8/dist/chart.umd.min.js"></script>
+    <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.8/dist/js/bootstrap.bundle.min.js"></script>
+    <script src="/static/app.js"></script>
+</head>
+<body>
+<div class="background"></div>
+<div class="app">
+    <div class="workspace">
+        <div class="main-panel">
+            {{template "sidebar" .}}
+            <div class="right-panel">
+                <div class="topbar">
+                    <div class="topbar-actions">
+                        <span id="usernameDisplay" class="text-secondary me-2"></span>
+                        <button class="btn btn-outline-secondary btn-sm" onclick="App.logout()">Logout</button>
+                        <button class="btn btn-primary" id="toggleDrawer" type="button">
+                            Need dopamine
+                        </button>
+                    </div>
+                </div>
+                <div class="content" id="mainContent">
+                    {{template "content" .}}
+                </div>
+            </div>
+            {{template "drawer" .}}
+        </div>
+    </div>
+</div>
+<script src="/static/script.js"></script>
+<script>
+    if (!App.requireAuth()) { /* redirect */ }
+    else {
+        App.getProfile().then(p => {
+            if (p) document.getElementById('usernameDisplay').textContent = p.username;
+        });
+    }
+</script>
+</body>
+</html>
+{{end}}
+
+{{define "sidebar"}}
+<div class="sidebar-left">
+    <div class="sidebar-brand">
+        <img src="/static/logo.png" alt="Marte">
+        <div>
+            <h3 class="mb-1">Marte</h3>
+        </div>
+    </div>
+    <h6>Menu</h6>
+    <div class="sidebar-actions">
+        <a href="/dashboard" class="btn sidebar-btn text-start w-100 {{if eq .ActivePage "dashboard"}}btn-outline-primary{{end}}">
+            <i class="bi bi-speedometer"></i> Dashboard
+        </a>
+        <a href="/dashboard/grafici" class="btn sidebar-btn text-start w-100 {{if eq .ActivePage "grafici"}}btn-outline-primary{{end}}">
+            <i class="bi bi-graph-up-arrow"></i> Charts
+        </a>
+        <a href="/dashboard/flags" class="btn sidebar-btn text-start w-100 {{if eq .ActivePage "flags"}}btn-outline-primary{{end}}">
+            <i class="bi bi-flag-fill"></i> Flags
+        </a>
+        <a href="/dashboard/docs" class="btn sidebar-btn text-start w-100 {{if eq .ActivePage "docs"}}btn-outline-primary{{end}}">
+            <i class="bi bi-book-fill"></i> Documentation
+        </a>
+        <a href="/dashboard/top" class="btn sidebar-btn text-start w-100 {{if eq .ActivePage "top"}}btn-outline-primary{{end}}">
+            <i class="bi bi-trophy-fill"></i> Top Attackers
+        </a>
+    </div>
+</div>
+{{end}}
+
+{{define "drawer"}}
+<div class="drawer" id="attentionDrawer" aria-hidden="true">
+    <div class="drawer-header">
+        <div>
+            <h2 class="mb-0">Dopamine</h2>
+        </div>
+        <button class="btn btn-outline-secondary btn-sm" id="closeDrawer" type="button">Close</button>
+    </div>
+    <div class="drawer-body">
+        <div class="video-shell">
+            <iframe class="runner-video" id="runnerVideoHost"
+                    src="https://www.youtube.com/embed/s600FYgI5-s?autoplay=1&mute=1&controls=0&loop=1&playlist=s600FYgI5-s"
+                    allow="autoplay; encrypted-media" loading="eager" allowfullscreen></iframe>
+        </div>
+    </div>
+</div>
+{{end}}

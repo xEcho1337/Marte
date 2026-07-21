@@ -105,6 +105,8 @@ jobs:
         with:
           name: marte-backend-linux-${{ matrix.arch }}
           path: .
+      - name: Fix permissions
+        run: chmod +x marte
       - name: Log in to GHCR
         uses: docker/login-action@v3
         with:

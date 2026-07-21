@@ -105,8 +105,6 @@ jobs:
         with:
           name: marte-backend-linux-${{ matrix.arch }}
           path: .
-      - name: Download CA cert bundle
-        run: curl -sL -o ca-certificates.crt https://curl.se/ca/cacert.pem
       - name: Log in to GHCR
         uses: docker/login-action@v3
         with:

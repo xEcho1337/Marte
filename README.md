@@ -47,13 +47,30 @@ marte exploit debug <file> <service> <host> Debug exploit (useful for testing)
 
 Installation is only supported on macOS and Linux. If you are one Windows, use **WSL2**.
 
-One line to install:
+### Client
+
+One liner:
 
 ```bash
 curl -sSfL https://raw.githubusercontent.com/xEcho1337/Marte/main/scripts/install-client.sh | bash
 ```
 
 The script will install the Marte's client inside the `~/.local/bin` directory.
+
+### Server
+
+One liner:
+
+```bash
+bash <(curl -sSfL https://raw.githubusercontent.com/xEcho1337/Marte/main/scripts/install-server.sh)
+cd Marte
+```
+
+After configuring `data/config.yml`, run with:
+
+```bash
+docker compose up -d
+```
 
 ## Build
 

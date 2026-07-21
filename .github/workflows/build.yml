@@ -6,6 +6,10 @@ on:
     branches: [main, master]
   workflow_dispatch:
 
+env:
+  REGISTRY: ghcr.io
+  IMAGE: ghcr.io/xecho1337/marte
+
 jobs:
   client:
     strategy:
@@ -20,11 +24,11 @@ jobs:
           go-version: "1.26"
       - run: |
           GOOS=${{ matrix.os == 'ubuntu-latest' && 'linux' || 'darwin' }} GOARCH=${{ matrix.arch }} \
-            go build -ldflags="-s -w" -o client/out/marte ./client
+            go build -ldflags="-s -w" -o marte ./client
       - uses: actions/upload-artifact@v4
         with:
           name: marte-client-${{ matrix.os == 'ubuntu-latest' && 'linux' || 'darwin' }}-${{ matrix.arch }}
-          path: client/out/marte
+          path: marte
 
   backend:
     strategy:
@@ -36,12 +40,11 @@ jobs:
       - uses: actions/setup-go@v5
         with:
           go-version: "1.26"
-      - run: |
-          GOOS=linux GOARCH=${{ matrix.arch }} go build -ldflags="-s -w" -o backend/out/marte ./backend
+      - run: GOOS=linux GOARCH=${{ matrix.arch }} go build -ldflags="-s -w" -o marte ./backend
       - uses: actions/upload-artifact@v4
         with:
           name: marte-backend-linux-${{ matrix.arch }}
-          path: backend/out/marte
+          path: marte
 
   release:
     if: github.ref == 'refs/heads/main' && github.event_name == 'push'
@@ -63,7 +66,6 @@ jobs:
           for f in artifacts/*.bin; do
             mv "$f" "${f%.bin}"
           done
-          ls -la artifacts/
       - name: Set release name
         id: release_name
         run: |
@@ -76,15 +78,6 @@ jobs:
           name: ${{ steps.release_name.outputs.name }}
           body: |
             Automatic release from commit ${{ github.sha }}.
-
-            | Artifact | Description |
-            |----------|-------------|
-            | marte-client-linux-amd64 | Linux amd64 client |
-            | marte-client-linux-arm64 | Linux arm64 client |
-            | marte-client-darwin-amd64 | macOS amd64 client |
-            | marte-client-darwin-arm64 | macOS arm64 client |
-            | marte-backend-linux-amd64 | Linux amd64 backend |
-            | marte-backend-linux-arm64 | Linux arm64 backend |
           artifacts: "artifacts/*"
           artifactErrorsFailBuild: true
           allowUpdates: true
@@ -94,28 +87,51 @@ jobs:
 
   docker:
     if: github.ref == 'refs/heads/main' && github.event_name == 'push'
-    needs: [release]
+    needs: [backend]
+    strategy:
+      matrix:
+        arch: [amd64, arm64]
     runs-on: ubuntu-latest
     permissions:
       contents: read
       packages: write
     steps:
       - uses: actions/checkout@v4
+      - uses: actions/download-artifact@v4
+        with:
+          name: marte-backend-linux-${{ matrix.arch }}
+          path: .
       - name: Log in to GHCR
         uses: docker/login-action@v3
         with:
-          registry: ghcr.io
+          registry: ${{ env.REGISTRY }}
           username: ${{ github.actor }}
           password: ${{ secrets.GITHUB_TOKEN }}
-      - name: Set up QEMU
-        uses: docker/setup-qemu-action@v3
-      - name: Set up Docker Buildx
-        uses: docker/setup-buildx-action@v3
-      - name: Build and push
+      - name: Build and push (${{ matrix.arch }})
         uses: docker/build-push-action@v6
         with:
           context: .
           file: docker/Dockerfile
-          platforms: linux/amd64,linux/arm64
           push: true
-          tags: ghcr.io/xecho1337/marte:latest
+          tags: ${{ env.IMAGE }}:${{ matrix.arch }}
+
+  manifest:
+    if: github.ref == 'refs/heads/main' && github.event_name == 'push'
+    needs: [docker]
+    runs-on: ubuntu-latest
+    permissions:
+      packages: write
+    steps:
+      - name: Log in to GHCR
+        uses: docker/login-action@v3
+        with:
+          registry: ${{ env.REGISTRY }}
+          username: ${{ github.actor }}
+          password: ${{ secrets.GITHUB_TOKEN }}
+      - name: Set up Docker Buildx
+        uses: docker/setup-buildx-action@v3
+      - name: Create and push manifest
+        run: |
+          docker buildx imagetools create -t ${{ env.IMAGE }}:latest \
+            ${{ env.IMAGE }}:amd64 \
+            ${{ env.IMAGE }}:arm64

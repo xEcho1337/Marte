@@ -9,9 +9,9 @@ RUN CGO_ENABLED=0 go build -ldflags="-s -w" -o /marte .
 
 FROM alpine:3.21
 RUN apk add --no-cache ca-certificates tzdata
-WORKDIR /app
-COPY --from=builder /marte .
+COPY --from=builder /marte /usr/bin/marte
 COPY frontend/ /frontend/
-EXPOSE 14100 14101
+WORKDIR /app
 VOLUME /app
-ENTRYPOINT ["./marte"]
+EXPOSE 14100 14101
+ENTRYPOINT ["marte"]

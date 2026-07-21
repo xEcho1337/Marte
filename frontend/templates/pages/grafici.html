@@ -92,6 +92,7 @@
 <script>
 let charts = {};
 const accent = getComputedStyle(document.documentElement).getPropertyValue('--accent').trim();
+const accentRGB = getComputedStyle(document.documentElement).getPropertyValue('--accent-rgb').trim();
 
 function formatTime(ts) {
     const d = new Date(ts);
@@ -229,7 +230,7 @@ function renderTopAttackersChart(attackers) {
                 {
                     label: 'Total',
                     data: total,
-                    backgroundColor: 'rgba(13, 110, 253, 0.6)',
+                    backgroundColor: `rgba(${accentRGB}, 0.6)`,
                     borderColor: accent,
                     borderWidth: 1,
                     borderRadius: 4
